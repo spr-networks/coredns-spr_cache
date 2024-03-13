@@ -247,8 +247,9 @@ func (w *ResponseWriter) set(m *dns.Msg, key uint64, mt response.Type, duration 
 		if w.prefetch {
 			w.ncache.Remove(key)
 		}
-
-	case response.NameError, response.NoData, response.ServerError:
+	case response.NameError:
+		//do not cache
+	case response.NoData, response.ServerError:
 		if plugin.Zones(w.nexcept).Matches(m.Question[0].Name) != "" {
 			// zone is in exception list, do not cache
 			return
