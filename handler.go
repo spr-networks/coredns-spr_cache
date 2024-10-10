@@ -15,6 +15,13 @@ import (
 
 // ServeDNS implements the plugin.Handler interface.
 func (c *Cache) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (int, error) {
+
+	//no caching for clients with a dns policy set.
+	v := ctx.Value("DNSPolicies")
+	if v != nil {
+		return plugin.NextOrFailure(c.Name(), c.Next, ctx, w, r)
+	}
+
 	rc := r.Copy() // We potentially modify r, to prevent other plugins from seeing this (r is a pointer), copy r into rc.
 	state := request.Request{W: w, Req: rc}
 	do := state.Do()
